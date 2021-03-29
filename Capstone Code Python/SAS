@@ -1,0 +1,239 @@
+///**Python Section**///
+
+import pandas as pd
+
+disney_df = pd.read_csv('disney_movies_total_gross.csv', keep_default_na=True)
+
+disney_df.info()
+
+import numpy as np
+
+data_types_dict = {'movie_title': str,
+                   'genre': str,
+                   'MPAA_rating': str,
+                   'total_gross': int(64),
+                   'inflation_adjusted_gross': int(64),
+                   'budget': int(64),
+                   'opening screens': int(64)}disney_df.MPAA_rating = 
+
+disney_df.MPAA_rating.astype(str)
+
+disney_df.movie_title = disney_df.movie_title.astype(str)
+
+disney_df.genre = disney_df.genre.astype(str)
+
+disney_df['New_rating'] = disney_df['MPAA_rating']
+
+disney_df.head(10)
+
+disney_df.New_rating[disney_df.New_rating == 'G'] == 1
+disney_df.New_rating[disney_df.New_rating == 'PG'] == 2
+disney_df.New_rating[disney_df.New_rating == 'PG-13'] == 3
+disney_df.New_rating[disney_df.New_rating == 'R'] == 4
+disney_df.New_rating[disney_df.New_rating == 'nan'] == 0
+disney_df.New_rating[disney_df.New_rating == 'Not Rated'] == 0
+
+disney_df.head(100)
+
+del disney_df['Unnamed: 8']
+print(disney_df)
+
+disney_df['budget'] = disney_df['budget'].fillna(0)
+
+disney_df['opening screens'] = disney_df['opening screens'].fillna(0)
+
+disney_df.head(100)
+
+disney_python_data = disney_df.to_csv('Disney_Python_data.csv', index = True)
+print ('\nCSV String:\n', disney_python_data)
+
+///**SAS Portion**///
+
+/* Generated Code (IMPORT) */
+/* Source File: Disney_Python_data.csv */
+/* Source Path: /home/u48505535/my_courses/Capstone */
+/* Code generated on: 3/28/21, 9:49 PM */
+
+%web_drop_table(WORK.IMPORT2);
+
+
+FILENAME REFFILE '/home/u48505535/my_courses/Capstone/Disney_Python_data.csv';
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.IMPORT2;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.IMPORT2; RUN;
+
+
+%web_open_table(WORK.IMPORT2);
+
+PROC MEANS Data=work.import2 N SUM RANGE MEAN MEDIAN MIN MAX STDDEV Q1 Q3 VAR SKEWNESS KURTOSIS;
+VAR total_gross inflation_adjusted_gross budget opening_screens;
+RUN;
+
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc corr data=WORK.IMPORT2 pearson nosimple noprob 
+		plots=scatter(ellipse=prediction alpha=0.05);
+	var total_gross;
+	with budget opening_screens New_rating;
+run
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc glmselect data=WORK.IMPORT2 outdesign(addinputvars)=Work.reg_design;
+	class budget / param=glm;
+	model total_gross=budget / showpvalues selection=none;
+run;
+
+proc reg data=Work.reg_design alpha=0.05 plots(only)=(diagnostics(unpack) 
+		residuals(unpack) observedbypredicted);
+	where budget is not missing;
+	ods select ResidualHistogram ResidualByPredicted RStudentByPredicted 
+		ObservedByPredicted CooksDPlot RStudentByLeverage QQPlot RFPlot ResidualPlot 
+		ObservedByPredicted;
+	model total_gross=&_GLSMOD /;
+	run;
+quit;
+
+proc delete data=Work.reg_design;
+run;
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc glmselect data=WORK.IMPORT2 outdesign(addinputvars)=Work.reg_design;
+	class MPAA_rating / param=glm;
+	model total_gross=MPAA_rating / showpvalues selection=none;
+run;
+
+proc reg data=Work.reg_design alpha=0.05 plots(only)=(diagnostics(unpack) 
+		residuals(unpack) observedbypredicted);
+	where MPAA_rating is not missing;
+	ods select ResidualHistogram ResidualByPredicted RStudentByPredicted 
+		ObservedByPredicted CooksDPlot RStudentByLeverage QQPlot RFPlot ResidualPlot 
+		ObservedByPredicted;
+	model total_gross=&_GLSMOD /;
+	run;
+quit;
+
+proc delete data=Work.reg_design;
+run;
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc glmselect data=WORK.IMPORT2 outdesign(addinputvars)=Work.reg_design;
+	class opening_screens / param=glm;
+	model total_gross=opening_screens / showpvalues selection=none;
+run;
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc glmselect data=WORK.IMPORT2 outdesign(addinputvars)=Work.reg_design;
+	class New_rating / param=glm;
+	model total_gross=New_rating / showpvalues selection=none;
+run;
+
+proc reg data=Work.reg_design alpha=0.05 plots(only)=(diagnostics(unpack) 
+		residuals(unpack) observedbypredicted);
+	where New_rating is not missing;
+	ods select ResidualHistogram ResidualByPredicted RStudentByPredicted 
+		ObservedByPredicted CooksDPlot RStudentByLeverage QQPlot RFPlot ResidualPlot 
+		ObservedByPredicted;
+	model total_gross=&_GLSMOD /;
+	run;
+quit;
+
+proc delete data=Work.reg_design;
+run;proc reg data=Work.reg_design alpha=0.05 plots(only)=(diagnostics(unpack) 
+		residuals(unpack) observedbypredicted);
+	where opening_screens is not missing;
+	ods select ResidualHistogram ResidualByPredicted RStudentByPredicted 
+		ObservedByPredicted CooksDPlot RStudentByLeverage QQPlot RFPlot ResidualPlot 
+		ObservedByPredicted;
+	model total_gross=&_GLSMOD /;
+	run;
+quit;
+
+proc delete data=Work.reg_design;
+run;
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc sort data=WORK.IMPORT2 out=Work.TempDataSorted;
+	by MPAA_rating;
+run;
+
+proc glmselect data=Work.TempDataSorted outdesign(addinputvars)=Work.reg_design;
+	class opening_screens / param=glm;
+	model total_gross=opening_screens / showpvalues selection=none;
+	by MPAA_rating;
+run;
+
+proc reg data=Work.reg_design alpha=0.05 plots(only)=(diagnostics(unpack) 
+		residuals(unpack) observedbypredicted);
+	where opening_screens is not missing;
+	ods select ResidualHistogram ResidualByPredicted RStudentByPredicted 
+		ObservedByPredicted CooksDPlot RStudentByLeverage QQPlot RFPlot ResidualPlot 
+		ObservedByPredicted;
+	model total_gross=&_GLSMOD /;
+	by MPAA_rating;
+	run;
+quit;
+
+proc delete data=Work.TempDataSorted;
+run;
+
+proc delete data=Work.reg_design;
+run;
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc sort data=WORK.IMPORT2 out=Work.TempDataSorted;
+	by MPAA_rating;
+run;
+
+proc glmselect data=Work.TempDataSorted outdesign(addinputvars)=Work.reg_design;
+	class budget / param=glm;
+	model total_gross=budget / showpvalues selection=none;
+	by MPAA_rating;
+run;
+
+proc reg data=Work.reg_design alpha=0.05 plots(only)=(diagnostics(unpack) 
+		residuals(unpack) observedbypredicted);
+	where budget is not missing;
+	ods select ResidualHistogram ResidualByPredicted RStudentByPredicted 
+		ObservedByPredicted CooksDPlot RStudentByLeverage QQPlot RFPlot ResidualPlot 
+		ObservedByPredicted;
+	model total_gross=&_GLSMOD /;
+	by MPAA_rating;
+	run;
+quit;
+
+proc delete data=Work.TempDataSorted;
+run;
+
+proc delete data=Work.reg_design;
+run;
+
+Title;
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc glm data=WORK.IMPORT2;
+	class MPAA_rating;
+	model budget=MPAA_rating;
+	means MPAA_rating / hovtest=levene welch plots=none;
+	lsmeans MPAA_rating / adjust=tukey pdiff alpha=.05;
+	run;
+quit;
